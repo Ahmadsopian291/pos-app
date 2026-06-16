@@ -7,7 +7,8 @@
 
   // Variabel untuk Tambah Bahan Baku Baru
   let namaBahan = $state('');
-  let satuan = $state(''); // Bisa diketik bebas atau pilih dari datalist
+  let kategori = $state('Bahan Makanan');
+  let satuan = $state(''); 
   let stok = $state<number | ''>('');
   let prosesSimpan = $state(false);
 
@@ -17,7 +18,6 @@
   let editStok = $state<number | ''>('');
   let prosesUpdate = $state(false);
 
-  // Fungsi Menarik Data dari Tabel bahan_baku
   async function tarikData() {
     loading = true;
     const { data } = await supabase
@@ -33,9 +33,8 @@
     tarikData();
   });
 
-  // Fungsi Menyimpan Bahan Baru
   async function simpanBahan() {
-    if (!namaBahan || !satuan || stok === '') {
+    if (!namaBahan || !kategori || !satuan || stok === '') {
       alert("Mohon isi semua data bahan baku!");
       return;
     }
@@ -45,15 +44,18 @@
       .from('bahan_baku')
       .insert([{
         nama_bahan: namaBahan,
+        kategori: kategori,
         satuan: satuan,
         stok_saat_ini: stok
       }]);
 
     if (error) {
+      console.log("Detail Error:", error);
       alert("Gagal menyimpan bahan baku!");
     } else {
-      alert("✅ Bahan baku baru berhasil ditambahkan!");
+      alert("✅ Bahan baku berhasil ditambahkan ke dapur!");
       namaBahan = '';
+      kategori = 'Bahan Makanan';
       satuan = '';
       stok = '';
       tarikData();
@@ -61,14 +63,6 @@
     prosesSimpan = false;
   }
 
-  // Fungsi Membuka Modal Edit Stok
-  function bukaEdit(bahan: any) {
-    bahanTerpilih = bahan;
-    editStok = bahan.stok_saat_ini;
-    tampilkanEdit = true;
-  }
-
-  // Fungsi Menyimpan Perubahan Stok
   async function perbaruiStok() {
     if (editStok === '' || !bahanTerpilih) return;
     prosesUpdate = true;
@@ -87,6 +81,12 @@
     }
     prosesUpdate = false;
   }
+
+  function bukaEdit(bahan: any) {
+    bahanTerpilih = bahan;
+    editStok = bahan.stok_saat_ini;
+    tampilkanEdit = true;
+  }
 </script>
 
 <div class="mb-5">
@@ -102,10 +102,18 @@
       <label for="dapur-nama" class="text-xs font-bold text-gray-500">NAMA BAHAN BAKU</label>
       <input id="dapur-nama" type="text" bind:value={namaBahan} class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:border-orange-500 outline-none" placeholder="Contoh: Tepung Aci / Daging Ayam">
     </div>
+
+    <div>
+      <label for="dapur-kategori" class="text-xs font-bold text-gray-500">KATEGORI BAHAN</label>
+      <select id="dapur-kategori" bind:value={kategori} class="w-full p-2 border border-gray-300 rounded-lg text-sm bg-white focus:border-orange-500 outline-none">
+        <option value="Bahan Makanan">Bahan Makanan</option>
+        <option value="Packaging">Packaging</option>
+      </select>
+    </div>
     
     <div class="flex gap-3">
       <div class="flex-1">
-        <label for="dapur-stok" class="text-xs font-bold text-gray-500">STOK SAAT INI</label>
+        <label for="dapur-stok" class="text-xs font-bold text-gray-500">STOK AWAL</label>
         <input id="dapur-stok" type="number" bind:value={stok} class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:border-orange-500 outline-none" placeholder="10">
       </div>
       <div class="flex-1">
@@ -151,7 +159,9 @@
         >
           <div>
             <p class="font-bold text-sm text-gray-700 group-hover:text-orange-600 transition">{bahan.nama_bahan}</p>
-            <span class="text-[10px] font-bold text-gray-500">Satuan: {bahan.satuan}</span>
+            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full border {bahan.kategori === 'Bahan Makanan' ? 'text-blue-600 bg-blue-50 border-blue-100' : 'text-purple-600 bg-purple-50 border-purple-100'}">
+              {bahan.kategori}
+            </span>
           </div>
           <div class="text-right">
             <p class="text-xs text-gray-500 font-medium mb-0.5">Sisa Stok</p>
@@ -168,11 +178,10 @@
 {#if tampilkanEdit && bahanTerpilih}
   <div class="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0">
     <div class="bg-white w-full max-w-md rounded-t-3xl p-6 flex flex-col shadow-2xl border border-gray-200">
-      
       <div class="flex justify-between items-center mb-4 border-b pb-2">
         <div>
           <h3 class="font-bold text-lg text-gray-800">Update Stok Mentah</h3>
-          <p class="text-xs text-gray-500">{bahanTerpilih.nama_bahan}</p>
+          <p class="text-xs text-gray-500">{bahanTerpilih.nama_bahan} ({bahanTerpilih.kategori})</p>
         </div>
         <button onclick={() => tampilkanEdit = false} class="w-8 h-8 bg-gray-200 rounded-full font-bold text-gray-500 active:scale-95">X</button>
       </div>
@@ -183,20 +192,14 @@
           <input id="edit-stok-mentah" type="number" bind:value={editStok} class="w-full p-3 border border-gray-300 rounded-xl font-bold text-gray-700 focus:border-orange-500 outline-none text-xl">
           <span class="font-bold text-gray-400">{bahanTerpilih.satuan}</span>
         </div>
-        <p class="text-[10px] text-gray-400 mt-2">*Ketik langsung sisa fisik bahan baku yang ada di dapur saat ini.</p>
       </div>
 
       <div class="flex gap-2">
         <button onclick={() => tampilkanEdit = false} class="w-24 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl active:scale-95 text-sm">Batal</button>
-        <button 
-          onclick={perbaruiStok}
-          disabled={prosesUpdate}
-          class="flex-1 py-3 bg-green-600 text-white font-bold rounded-xl active:scale-95 shadow-lg shadow-green-100 disabled:bg-gray-400 text-sm"
-        >
+        <button onclick={perbaruiStok} disabled={prosesUpdate} class="flex-1 py-3 bg-green-600 text-white font-bold rounded-xl active:scale-95 shadow-lg shadow-green-100 disabled:bg-gray-400 text-sm">
           {prosesUpdate ? 'Menyimpan...' : 'Simpan Perubahan'}
         </button>
       </div>
-
     </div>
   </div>
 {/if}

@@ -8,6 +8,16 @@
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 {@render children()} -->
 
+<!-- <script lang="ts">
+	import './layout.css';
+	import favicon from '$lib/assets/favicon.svg';
+
+	let { children } = $props();
+</script>
+
+<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+{@render children()} -->
+
 <script lang="ts">
   import './layout.css'; // <-- Titik satu artinya mencari file di folder yang sama
   let { children } = $props();
@@ -18,9 +28,9 @@
   <div class="w-full max-w-md bg-gray-50 h-[100dvh] flex flex-col relative shadow-2xl overflow-hidden">
     
     <header class="bg-white p-4 shadow-sm flex items-center justify-between sticky top-0 z-20">
-      <h1 class="font-bold text-xl text-orange-600">POS F&B</h1>
+      <h1 class="font-bold text-xl text-orange-600">Aplikasi Bican X Cique</h1>
       <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-sm font-bold text-orange-600">
-        A
+        BxC
       </div>
     </header>
 

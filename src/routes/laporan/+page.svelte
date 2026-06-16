@@ -210,7 +210,7 @@
     <div class="bg-white w-full max-w-md h-[65vh] rounded-t-3xl p-5 flex flex-col shadow-2xl border border-gray-200 relative">
       <button onclick={() => tampilkanDetail = false} class="absolute top-4 right-4 w-8 h-8 bg-gray-100 rounded-full font-bold text-gray-500 active:scale-95">X</button>
       <div class="mb-4 text-center border-b border-dashed border-gray-300 pb-3">
-        <h3 class="font-extrabold text-lg text-gray-800">DOKTER HP POS</h3>
+        <h3 class="font-extrabold text-lg text-gray-800">Detail Order</h3>
         <p class="text-xs text-gray-500 mt-0.5">{formatTanggal(strukTerpilih.waktu_transaksi)}</p>
       </div>
       <div class="flex-1 overflow-y-auto">
